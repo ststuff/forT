@@ -1,0 +1,62 @@
+So here’s the basic way to implement local alerts (like 8:00 PM is time to study algebra or 6:00 AM is time to brush teeth) ….  
+
+1. AppDelegate.swift :   
+
+      a. Before class definition: import UserNotifications
+
+      b. Inside ‘application( …. didFinishLaunchingWithOptions … )call: 
+
+            let options: UNAuthorizationOptions = [.alert, .badge, .sound]
+
+            UNUserNotificationCenter.current().requestAuthorization(options: options){(granted, error) in print(error ?? “GOOD SO FAR”)}
+
+2. In ViewController.swift:
+
+      a. Before class definition: import UserNotifications
+
+      b. Adopt the UNUserNotificationCenterDelegate protocol by adding to first line of class def. as follows: 
+   
+            class ViewController: UIViewController, UNUserNotificationCenterDelegate {  
+
+      c. Inside a method or button call, add:
+
+             i. The content: 
+
+                   let content = UNMutableNotificationContent()
+                   content.title = “TITLE”
+		       content.subtitle = “SUBTITLE”
+	          content.badge = 1
+                   content.body = “NOTIFY WORLD!”
+                   content.sound = UNNotificationSound(named: “sound.mp3”)
+
+          ii. The trigger: 
+
+                   let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)                                                                                                                         // OR
+                   let trigger = UNCalendarNotificationTrigger(dateMatching: DateComponents(year: 2017, hour: 7, minute: 30, weekdayOrdinal: 1), repeats: true)
+
+         iii. The request: 
+
+                    let rID = “test”
+                    let request = UNNotificationRequest(identifier: rID, content: content, trigger: trigger)
+
+
+        iv. Add it all up: 
+
+                    UNUserNotificationCenter.current().add(request) { (error) in print(error ?? “A-OK”)}
+
+d. Inside func viewDidLoad() … add code to make ViewController the delegate: 
+
+       UNUserNotificationCenter.current().delegate = self
+
+e. Add delegate method to invoke the alert: 
+
+       func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) { completionHandler([.alert, .badge, .sound])}
+
+——
+
+That's it.
+
+If you want a calendar notification, use the calendar notification trigger with the date components you’d like to trigger on.  If you don’t want to see a badge on your app icon or hear a sound when the notification is played, you can remove these from the notification (in part e).  If you want your notifications to be responsive, there’s a way to do that with another method + func call.  Finally, there’s a little more complicated way to get push notification, like when you get a text message.   Hope it helps,
+
+
+
